@@ -31,6 +31,7 @@ int is_protein = 0;
 int is_accession = 1;
 int is_gi = 0;
 int strip_version = 0;
+int only_taxid = 0;
 int id_column = 1;
 long int memory_required = 0;
 int keep_columns = 0;
@@ -65,6 +66,7 @@ void usage(void)
            "    [-o | --output]     Filename of output file.\n" \
            "    [-p | --protein]    Query IDs are protein.\n" \
            "    [-s | --strip]      Strip version from input acession IDs (ie. everything after .)" \
+           "    [-t | --taxid]      Return taxid instead of taxonomy string" \
            "\n");
 }
 
@@ -90,6 +92,7 @@ void parse_command_line(int argc, char* argv[])
         {"output", required_argument, NULL, 'o'},
         {"protein", no_argument, NULL, 'p'},
         {"strip", no_argument, NULL, 's'},
+        {"taxid", no_argument, NULL, 't'},
         {0, 0, 0, 0}
     };
     int opt;
@@ -158,6 +161,9 @@ void parse_command_line(int argc, char* argv[])
                 break;
             case 's':
                 strip_version = 1;
+                break;
+            case 't':
+                only_taxid = 1;
                 break;
         }
     }
@@ -689,9 +695,17 @@ void process_request_file()
                         }
                         //printf("Found %s: %s, %s, %d, %d\n", id, accession, version, taxid, gi);
                         if (keep_columns) {
-                            fprintf(fp_out, "%s%s%s\n", line, delim, t);
+                            if (only_taxid) {
+                                fprintf(fp_out, "%s%s%ld\n", line, delim, taxid);
+                            } else {
+                                fprintf(fp_out, "%s%s%s\n", line, delim, t);
+                            }
                         } else {
-                            fprintf(fp_out, "%s%s%s\n", id, delim, t);
+                            if (only_taxid) {
+                                fprintf(fp_out, "%s%s%ld\n", id, delim, taxid);
+                            } else {
+                                fprintf(fp_out, "%s%s%s\n", id, delim, t);
+                            }
                         }
                     } else {
                         printf("\nCouldn't find: [%s]\n", id);

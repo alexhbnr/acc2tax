@@ -122,7 +122,7 @@ void parse_command_line(int argc, char* argv[])
                 break;
             case 'i':
                 if (optarg==NULL) {
-                    printf("Error: Option requires an argument.\n");
+                    fprintf(stderr, "Error: Option requires an argument.\n");
                     exit(1);
                 }
                 strcpy(input_filename, optarg);
@@ -132,21 +132,21 @@ void parse_command_line(int argc, char* argv[])
                 break;
             case 'o':
                 if (optarg==NULL) {
-                    printf("Error: Option requires an argument.\n");
+                    fprintf(stderr, "Error: Option requires an argument.\n");
                     exit(1);
                 }
                 strcpy(output_filename, optarg);
                 break;
             case 'd':
                 if (optarg==NULL) {
-                    printf("Error: Option requires an argument.\n");
+                    fprintf(stderr, "Error: Option requires an argument.\n");
                     exit(1);
                 }
                 strcpy(database_dir, optarg);
                 break;
             case 'e':
                 if (optarg==NULL) {
-                    printf("Error: Option requires an argument.\n");
+                    fprintf(stderr, "Error: Option requires an argument.\n");
                     exit(1);
                 }
                 max_gi=atoi(optarg);
@@ -169,15 +169,15 @@ void parse_command_line(int argc, char* argv[])
     }
     
     if (input_filename[0] == 0) {
-        printf("Error: you must specify an input filename.\n");
+        fprintf(stderr, "Error: you must specify an input filename.\n");
         exit(2);
     }
     if (output_filename[0] == 0) {
-        printf("Error: you must specify an output filename.\n");
+        fprintf(stderr, "Error: you must specify an output filename.\n");
         exit(2);
     }
     if (database_dir[0] == 0) {
-        printf("Error: you must specify a database directory.\n");
+        fprintf(stderr, "Error: you must specify a database directory.\n");
         exit(2);
     }
 }
@@ -207,31 +207,31 @@ void allocate_memory(void)
 {
     if (is_gi) {
         memory_required+=(max_gi * sizeof(unsigned int));
-        printf("Allocating memory for GI list (%d entries)\n", max_gi);
+        fprintf(stderr, "Allocating memory for GI list (%d entries)\n", max_gi);
         gi_to_node = calloc(max_gi, sizeof(unsigned int));
         if (!gi_to_node) {
-            printf("Error: couldn't allocate memory.\n");
+            fprintf(stderr, "Error: couldn't allocate memory.\n");
             exit(1);
         }
     }
     
     memory_required+=(MAX_NAMES * sizeof(char*));
-    printf("Allocating memory for names list (%d entries)\n", MAX_NAMES);
+    fprintf(stderr, "Allocating memory for names list (%d entries)\n", MAX_NAMES);
     names = calloc(MAX_NAMES, sizeof(char*));
     if (!names) {
-        printf("Error: couldn't allocate memory.\n");
+        fprintf(stderr, "Error: couldn't allocate memory.\n");
         exit(1);
     }
 
     memory_required+=(MAX_NAMES * sizeof(int*));
-    printf("Allocating memory for nodes list (%d entries)\n", MAX_NAMES);
+    fprintf(stderr, "Allocating memory for nodes list (%d entries)\n", MAX_NAMES);
     nodes = calloc(MAX_NAMES, sizeof(int*));
     if (!nodes) {
-        printf("Error: couldn't allocate memory.\n");
+        fprintf(stderr, "Error: couldn't allocate memory.\n");
         exit(1);
     }
 
-    printf("Total memory required %ld Mb\n", memory_required / (1024*1025));
+    fprintf(stderr, "Total memory required %ld Mb\n", memory_required / (1024*1025));
 }
 
 /*----------------------------------------------------------------------*
@@ -251,10 +251,10 @@ void load_gi_to_node_list()
     } else {
         sprintf(filename, "%s/gi_taxid_prot.dmp", database_dir);        
     }
-    printf("Opening database file %s\n", filename);
+    fprintf(stderr, "Opening database file %s\n", filename);
     fp = fopen(filename, "r");
     if (!fp) {
-        printf("Error: can't open %s\n", filename);
+        fprintf(stderr, "Error: can't open %s\n", filename);
     }    
     
     while (!feof(fp)) {
@@ -263,13 +263,13 @@ void load_gi_to_node_list()
             char* node_id_str = strtok(0, "\t");
             
             if ((!gi_str) || (!node_id_str)) {
-                printf("Error: bad line in GI file\n");
+                fprintf(stderr, "Error: bad line in GI file\n");
             } else {
                 unsigned int gi = atoi(gi_str);
                 unsigned int node_id = atoi(node_id_str);
                 
                 if (gi >= max_gi) {
-                    printf("Error: GI out of range - %d\n", gi);
+                    fprintf(stderr, "Error: GI out of range - %d\n", gi);
                     exit(1);
                 } else {
                     gi_to_node[gi] = node_id;
@@ -296,10 +296,10 @@ void load_node_list(void)
     FILE* fp;
     
     sprintf(filename, "%s/nodes.dmp", database_dir);
-    printf("Opening database file %s\n", filename);
+    fprintf(stderr, "Opening database file %s\n", filename);
     fp = fopen(filename, "r");
     if (!fp) {
-        printf("Error: can't open %s\n", filename);
+        fprintf(stderr, "Error: can't open %s\n", filename);
     }
         
     while (!feof(fp)) {
@@ -309,7 +309,7 @@ void load_node_list(void)
             char* parent_str = strtok(0, "\t");
             
             if ((!child_str) || (!parent_str)) {
-                printf("Error: bad line in nodes file\n");
+                fprintf(stderr, "Error: bad line in nodes file\n");
             } else {
                 unsigned int child = atoi(child_str);
                 unsigned int parent = atoi(parent_str);                
@@ -370,10 +370,10 @@ void load_name_list(void)
     FILE* fp;
     
     sprintf(filename, "%s/names.dmp", database_dir);
-    printf("Opening database file %s\n", filename);
+    fprintf(stderr, "Opening database file %s\n", filename);
     fp = fopen(filename, "r");    
     if (!fp) {
-        printf("Error: can't open %s\n", filename);
+        fprintf(stderr, "Error: can't open %s\n", filename);
     }
     
     while (!feof(fp)) {
@@ -388,7 +388,7 @@ void load_name_list(void)
             unsigned int id = atoi(id_str);
             
             if (id > MAX_NAMES) {
-                printf("Error: id (%d) is greater than maximum currently allowed (%d)\n", id, MAX_NAMES);
+                fprintf(stderr, "Error: id (%d) is greater than maximum currently allowed (%d)\n", id, MAX_NAMES);
                 exit(1);
             }
 
@@ -396,7 +396,7 @@ void load_name_list(void)
                 memory_required += (strlen(name)+1);
                 names[id] = malloc(strlen(name)+1);
                 if (!names[id]) {
-                    printf("Error: can't allocate memory for name\n");
+                    fprintf(stderr, "Error: can't allocate memory for name\n");
                 } else {
                     strcpy(names[id], name);
                 }
@@ -433,7 +433,7 @@ char* get_taxonomy_from_node(int current_node, char* taxonomy)
         } else {
             strcat(taxonomy, "Unknown");
             if (i > 0) strcat(taxonomy, ",");
-            printf("\nError: no name for node %d\n", node_list[i]);
+            fprintf(stderr, "\nError: no name for node %d\n", node_list[i]);
         }
     }
     
@@ -452,7 +452,7 @@ char* get_taxonomy_by_gi(int gi, char* taxonomy)
     int current_node;
     
     if ((gi >= max_gi) || (gi < 1)) {
-        printf("\nError: bad GI (%d)\n", gi);
+        fprintf(stderr, "\nError: bad GI (%d)\n", gi);
         e = 1;
     }
     
@@ -460,7 +460,7 @@ char* get_taxonomy_by_gi(int gi, char* taxonomy)
         current_node = gi_to_node[gi];
         
         if (current_node == 0) {
-            printf("\nError: GI (%d) node (%d) invalid\n", gi, current_node);
+            fprintf(stderr, "\nError: GI (%d) node (%d) invalid\n", gi, current_node);
             e = 2;
         }
     }
@@ -536,7 +536,7 @@ void get_closest_record(long int pos, char* line) {
     fgets(line, 1024, acc_fp);
     
 #ifdef DEBUG
-    printf("Got line: %s\n", line);
+    fprintf(stderr, "Got line: %s\n", line);
 #endif
 }
 
@@ -568,10 +568,10 @@ void split_fields(char* line, char** accession, char** version, long int* taxid,
     }
     
 #ifdef DEBUG
-    printf("Accession: %s\n", *accession);
-    printf("Version: %s\n", *version);
-    printf("Tax ID: %ld\n", *taxid);
-    printf("GI: %ld\n", *gi);
+    fprintf(stderr, "Accession: %s\n", *accession);
+    fprintf(stderr, "Version: %s\n", *version);
+    fprintf(stderr, "Tax ID: %ld\n", *taxid);
+    fprintf(stderr, "GI: %ld\n", *gi);
 #endif
 }
 
@@ -588,13 +588,13 @@ int find_accession(char* search_accession, char* line, char** accession, char** 
     int found = 0;
     
 #ifdef DEBUG
-    printf("Finding %s\n", search_accession);
+    fprintf(stderr, "Finding %s\n", search_accession);
 #endif
     
     while (found == 0) {
         long int current_pos = min + ((max-min) / 2);
 #ifdef DEBUG
-        printf("Min: %d Max: %d\n", min, max);
+        fprintf(stderr, "Min: %d Max: %d\n", min, max);
 #endif
         get_closest_record(current_pos, line);
         split_fields(line, accession, version, taxid, gi);
@@ -639,14 +639,14 @@ void process_request_file()
 
     fp_in = fopen(input_filename, "r");
     if (!fp_in) {
-        printf("Error: can't open %s\n", input_filename);
+        fprintf(stderr, "Error: can't open %s\n", input_filename);
         exit(1);
     }
 
     fp_out = fopen(output_filename, "w");
     if (!fp_out) {
         fclose(fp_in);
-        printf("Error: can't open %s\n", output_filename);
+        fprintf(stderr, "Error: can't open %s\n", output_filename);
         exit(1);
     }    
     
@@ -655,21 +655,21 @@ void process_request_file()
             chomp(line);
             count++;
             if ((count % 100) == 0) {
-                printf(".");
+                fprintf(stderr, ".");
                 fflush(stdout);
             }
             
             get_id_from_line(line, id);
             if (id[0] == 0) {
-                printf("Couldn't get ID!");
+                fprintf(stderr, "Couldn't get ID!");
             } else {
-                //printf("ID: %s\n", id);
+                //fprintf(stderr, "ID: %s\n", id);
                 
                 if (is_gi) {
                     int gi = atoi(id);
                     
                     if (gi < 1) {
-                        printf("Error: bad GI (%d) in request file\n", gi);
+                        fprintf(stderr, "Error: bad GI (%d) in request file\n", gi);
                     } else {
                         get_taxonomy_by_gi(gi, t);
                         fprintf(fp_out, "%i\t%s\n", gi, t);
@@ -693,7 +693,7 @@ void process_request_file()
                         } else {
                             get_taxonomy_from_node(taxid, t);
                         }
-                        //printf("Found %s: %s, %s, %d, %d\n", id, accession, version, taxid, gi);
+                        //fprintf(stderr, "Found %s: %s, %s, %d, %d\n", id, accession, version, taxid, gi);
                         if (keep_columns) {
                             if (only_taxid) {
                                 fprintf(fp_out, "%s%s%ld\n", line, delim, taxid);
@@ -708,7 +708,7 @@ void process_request_file()
                             }
                         }
                     } else {
-                        printf("\nCouldn't find: [%s]\n", id);
+                        fprintf(stderr, "\nCouldn't find: [%s]\n", id);
                     }
                 }
             }
@@ -718,7 +718,7 @@ void process_request_file()
     fclose(fp_out);
     fclose(fp_in);
     
-    printf("\n\nDone. Processed %d IDs.\n", count);
+    fprintf(stderr, "\n\nDone. Processed %d IDs.\n", count);
 }
 
 /*----------------------------------------------------------------------*
@@ -730,12 +730,12 @@ void process_request_file()
 void open_acc_file(char* filename) {
     acc_fp = fopen(filename, "r");
     if (!acc_fp) {
-        printf("Error: can't open %s\n", filename);
+        fprintf(stderr, "Error: can't open %s\n", filename);
         exit(1);
     }
     fseek(acc_fp, 0, SEEK_END);
     acc_file_size = ftell(acc_fp);
-    printf("File size: %li\n", acc_file_size);
+    fprintf(stderr, "File size: %li\n", acc_file_size);
 }
 
 /*----------------------------------------------------------------------*
@@ -780,7 +780,7 @@ void load_accession_file(void)
         sprintf(filename, "%s/acc2tax_prot_all.txt", database_dir);
     }
     
-    printf("Opening database file %s\n", filename);
+    fprintf(stderr, "Opening database file %s\n", filename);
     
     open_acc_file(filename);
 }
@@ -792,7 +792,7 @@ int main(int argc, char* argv[])
 {
     //setbuf(stdout, NULL);
     
-    printf("\nacc2tax %s\n\n", VERSION);
+    fprintf(stderr, "\nacc2tax %s\n\n", VERSION);
 
     parse_command_line(argc, argv);
     allocate_memory();
@@ -804,7 +804,7 @@ int main(int argc, char* argv[])
     load_node_list();
     load_name_list();
 
-    printf("Memory required: %ld MB\n\n", memory_required / (1024 * 1024));
+    fprintf(stderr, "Memory required: %ld MB\n\n", memory_required / (1024 * 1024));
     
     process_request_file();
 
